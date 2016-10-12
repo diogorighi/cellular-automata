@@ -1,8 +1,19 @@
-// create row
-// populate row with divs
-
 function generateRandomBinary() {
   return Math.round(Math.random());
+}
+
+function getRuleBinary(ruleNumber) {
+  var ruleNumberArray = ruleNumber.toString(2).split('');
+  if (ruleNumberArray.length > 8) {
+  } else if (ruleNumberArray.length === 8) {
+    var finalArray = ruleNumberArray.map(function(item){
+      return parseInt(item);
+    });
+    return finalArray;
+  } else {
+    ruleNumberArray.unshift('0');
+    return getRuleBinary(ruleNumberArray.join(''));
+  }
 }
 
 function createAndPopulateRow() {
@@ -35,28 +46,28 @@ function iterateOnNodes(lastRow, clone) {
     let self = lastRow.childNodes[i];
     let leftOfSelf = lastRow.childNodes[i - 1] || lastRow.childNodes[lastRow.childNodes.length - 1];
     let rightOfSelf = lastRow.childNodes[i + 1] || lastRow.childNodes[0];
-    applyRule(target, self, leftOfSelf, rightOfSelf);
+    applyRule(target, self, leftOfSelf, rightOfSelf, ruleBinary);
     document.getElementById('automata').appendChild(clone);
   }
 }
 
-function applyRule(target, self, leftOfSelf, rightOfSelf) {
+function applyRule(target, self, leftOfSelf, rightOfSelf, rulesArray) {
   if (isActive(leftOfSelf) && isActive(self) && isActive(rightOfSelf)) {
-    setInactive(target);
+    toggleActive(target, rulesArray[0]);
   } else if (isActive(leftOfSelf) && isActive(self) && isInactive(rightOfSelf)) {
-    setActive(target);
+    toggleActive(target, rulesArray[1]);
   } else if (isActive(leftOfSelf) && isInactive(self) && isActive(rightOfSelf)) {
-    setInactive(target);
+    toggleActive(target, rulesArray[2]);
   } else if (isActive(leftOfSelf) && isInactive(self) && isInactive(rightOfSelf)) {
-    setInactive(target);
+    toggleActive(target, rulesArray[3]);
   } else if (isInactive(leftOfSelf) && isActive(self) && isActive(rightOfSelf)) {
-    setActive(target);
+    toggleActive(target, rulesArray[4]);
   } else if (isInactive(leftOfSelf) && isActive(self) && isInactive(rightOfSelf)) {
-    setInactive(target);
+    toggleActive(target, rulesArray[5]);
   } else if (isInactive(leftOfSelf) && isInactive(self) && isActive(rightOfSelf)) {
-    setInactive(target);
+    toggleActive(target, rulesArray[6]);
   } else if (isInactive(leftOfSelf) && isInactive(self) && isInactive(rightOfSelf)) {
-    setActive(target);
+    toggleActive(target, rulesArray[7]);
   }
 }
 
@@ -68,15 +79,18 @@ function isInactive(node) {
   return node.classList.contains('inactive');
 }
 
-function setActive(node) {
-  node.classList.remove('inactive');
-  node.classList.add('active');
+function toggleActive(node, isActive) {
+  if(isActive) {
+    node.classList.remove('inactive');
+    node.classList.add('active');
+  } else {
+    node.classList.remove('active');
+    node.classList.add('inactive');
+  }
 }
 
-function setInactive(node) {
-  node.classList.remove('active');
-  node.classList.add('inactive');
-}
+var ruleNumber = parseInt(window.location.href.split('/').pop());
+var ruleBinary = getRuleBinary(ruleNumber);
 
 createAndPopulateRow();
 setInterval(duplicatingRows, 300);
